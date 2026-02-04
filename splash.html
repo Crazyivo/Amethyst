@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amethyst - System Loading</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #020202;
+            color: white;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script>
+        const STAGES = [
+          { message: "Initializing AMETHYST core", duration: 1500 },
+          { message: "Optimizing JVM arguments", duration: 2000 },
+          { message: "Scanning instance library", duration: 1800 },
+          { message: "Allocating heap memory (4GB)", duration: 2200 },
+          { message: "Injecting performance patches", duration: 2500 },
+          { message: "Verifying asset integrity", duration: 1800 },
+          { message: "Launching orchestrator", duration: 1200 },
+        ];
+
+        // Inline React rendering without JSX
+        function createLoadingScreen() {
+          let currentStage = 0;
+          let progress = 0;
+          let isComplete = false;
+          let mousePos = { x: 0, y: 0 };
+
+          const root = document.getElementById('root');
+          
+          function render() {
+            root.innerHTML = `
+              <div class="relative w-full h-screen overflow-hidden bg-[#050505] flex items-center justify-center font-sans text-white select-none">
+                <!-- Background Ambience -->
+                <div class="absolute inset-0 z-0 overflow-hidden">
+                  <div class="absolute top-[-10%] left-[-10%] w-[120%] h-[120%] opacity-30 transition-transform duration-1000 ease-out pointer-events-none" style="transform: translate(${mousePos.x}px, ${mousePos.y}px)">
+                    <div class="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-purple-900 rounded-full mix-blend-screen filter blur-[150px] animate-pulse"></div>
+                    <div class="absolute bottom-1/4 right-1/4 w-[700px] h-[700px] bg-fuchsia-900 rounded-full mix-blend-screen filter blur-[180px] animate-slow-float"></div>
+                    <div class="absolute inset-0 opacity-[0.05] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+                  </div>
+                </div>
+
+                <!-- Launcher Container -->
+                <div class="relative z-10 w-full max-w-2xl p-12 flex flex-col items-center transition-all duration-1000 ${isComplete ? 'scale-[1.02]' : ''}" style="transform: perspective(1000px) rotateX(${mousePos.y * -0.05}deg) rotateY(${mousePos.x * 0.05}deg)">
+                  <!-- Branding Area -->
+                  <div class="flex flex-col items-center mb-16 tracking-tighter">
+                    <h1 class="text-8xl font-black italic tracking-[-0.08em] leading-none mb-2 drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]">AMETHYST</h1>
+                    <p class="text-[11px] font-bold tracking-[0.5em] text-purple-500 uppercase opacity-80 mt-1">HIGH-PERFORMANCE ORCHESTRATION</p>
+                  </div>
+
+                  <!-- Progress System -->
+                  <div class="w-full max-w-md space-y-6">
+                    <div class="relative h-1 w-full bg-white/5 rounded-full overflow-hidden backdrop-blur-sm border border-white/5">
+                      <div class="h-full bg-gradient-to-r from-purple-600 via-fuchsia-400 to-purple-400 transition-all duration-300 ease-out shadow-[0_0_15px_rgba(168,85,247,0.6)]" style="width: ${progress}%"></div>
+                    </div>
+
+                    <div class="flex justify-between items-center px-1">
+                      <div class="flex flex-col gap-1">
+                        <span class="text-[9px] font-bold tracking-widest text-white/30 uppercase">Task Queue</span>
+                        <div class="h-6 relative overflow-hidden w-64">
+                          ${isComplete 
+                            ? '<span class="absolute inset-0 text-xs font-medium text-purple-400 animate-fade-in">Deployment ready</span>'
+                            : STAGES.map((stage, idx) => `
+                              <span class="absolute inset-0 text-xs font-medium text-white/80 transition-all duration-700 ${
+                                idx === currentStage ? 'translate-y-0 opacity-100' : idx < currentStage ? '-translate-y-4 opacity-0' : 'translate-y-4 opacity-0'
+                              }">${stage.message}...</span>
+                            `).join('')
+                          }
+                        </div>
+                      </div>
+                      <div class="text-right">
+                        <span class="block text-[9px] font-bold tracking-widest text-white/30 uppercase">Status</span>
+                        <span class="text-xs font-mono font-bold text-white/60 tabular-nums">${Math.round(progress)}%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Decorative Overlays -->
+                <div class="fixed top-12 left-12 flex items-center gap-6 opacity-40">
+                  <div class="w-[1px] h-12 bg-gradient-to-b from-white to-transparent"></div>
+                  <div class="flex flex-col gap-1">
+                    <span class="text-[10px] font-bold tracking-widest uppercase">System</span>
+                    <span class="text-[9px] font-mono text-white/50">AMETHYST_OS V3.1.0</span>
+                  </div>
+                </div>
+
+                <div class="fixed bottom-12 right-12 flex flex-col items-end gap-1 opacity-40">
+                  <span class="text-[10px] font-bold tracking-widest uppercase">Memory Allocation</span>
+                  <div class="flex items-center gap-3">
+                    <span class="text-[9px] font-mono text-white/50">4096MB / 16384MB</span>
+                    <div class="w-24 h-1 bg-white/10 rounded-full">
+                      <div class="w-1/4 h-full bg-purple-500"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Corner Brackets -->
+                <div class="fixed inset-12 border border-white/5 pointer-events-none">
+                  <div class="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-purple-500/30"></div>
+                  <div class="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-purple-500/30"></div>
+                  <div class="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-purple-500/30"></div>
+                  <div class="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-purple-500/30"></div>
+                </div>
+
+                <style>
+                  @keyframes slow-float { 
+                    0%, 100% { transform: translate(0, 0); } 
+                    50% { transform: translate(-20px, 30px); } 
+                  }
+                  @keyframes fade-in { 
+                    from { opacity: 0; transform: translateY(5px); } 
+                    to { opacity: 1; transform: translateY(0); } 
+                  }
+                  .animate-slow-float { animation: slow-float 15s ease-in-out infinite; }
+                  .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
+                </style>
+              </div>
+            `;
+          }
+
+          function handleMouseMove(e) {
+            mousePos = {
+              x: (e.clientX / window.innerWidth - 0.5) * 20,
+              y: (e.clientY / window.innerHeight - 0.5) * 20,
+            };
+            render();
+          }
+
+          window.addEventListener('mousemove', handleMouseMove);
+
+          let startTime = Date.now();
+          const totalDuration = STAGES.reduce((acc, stage) => acc + stage.duration, 0);
+
+          const interval = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const newProgress = Math.min((elapsed / totalDuration) * 100, 100);
+            progress = newProgress;
+
+            let accumulatedTime = 0;
+            for (let i = 0; i < STAGES.length; i++) {
+              accumulatedTime += STAGES[i].duration;
+              if (elapsed < accumulatedTime) {
+                currentStage = i;
+                break;
+              }
+            }
+
+            if (newProgress >= 100) {
+              isComplete = true;
+              clearInterval(interval);
+            }
+
+            render();
+          }, 16);
+
+          render();
+        }
+
+        // Start loading screen
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', createLoadingScreen);
+        } else {
+          createLoadingScreen();
+        }
+
+        // Listen for update progress from main process
+        const { ipcRenderer } = require('electron');
+        
+        ipcRenderer.on('update-progress', (event, data) => {
+          const statusDiv = document.querySelector('[id="update-status"]');
+          if (statusDiv) {
+            statusDiv.innerHTML = `
+              <div class="text-[9px] font-bold tracking-widest text-yellow-400 uppercase">Update</div>
+              <div class="text-xs font-mono text-yellow-300">${data.status}</div>
+              ${data.currentMB ? `<div class="text-[8px] text-yellow-300/70">${data.currentMB}MB / ${data.totalMB}MB</div>` : ''}
+            `;
+          }
+        });
+    </script>
+    <!-- Update Status Overlay -->
+    <div id="update-status" class="fixed bottom-12 left-12 flex flex-col items-start gap-1 opacity-60" style="display: none;">
+    </div>
+</body>
+</html>
+  </script>
+</body>
+</html>
