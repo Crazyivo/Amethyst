@@ -20,7 +20,7 @@
 
 ### Быстрый старт
 
-1. Скачай последнюю версию **Amethyst Launcher-3.0.1.exe** со страницы [Releases](https://github.com/Crazyivo/Amethyst/releases)
+1. Скачай последнюю версию **Amethyst Launcher-3.0.1.exe** со страницы [Amethyst-Launcher.zip](https://github.com/Crazyivo/Amethyst/releases)
 2. Запусти файл - он работает без установки
 3. Выбери или создай локальный аккаунт
 4. Нажми "Launch Game"
@@ -31,8 +31,6 @@
 2. Создайте новую папку на диске C: и назовите её Amethyst
 3. Откройте скаченный ZIP-файл и переместите все файлы в папку C:\Amethyst
 4. Запустите файл Amethyst Launcher.exe - готово!
-
-Лаунчер работает портативно и не требует установки на ПК
 
 ### Требования
 
