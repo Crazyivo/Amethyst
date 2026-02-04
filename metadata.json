@@ -1,0 +1,8 @@
+
+{
+  "name": "Amethyst Engine 3.0",
+  "description": "High-performance Minecraft orchestration platform with 3D Core Engine.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

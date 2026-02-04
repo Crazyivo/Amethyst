@@ -1,0 +1,47 @@
+{
+  "appId": "com.amethyst.launcher",
+  "productName": "Amethyst Launcher",
+  "directories": {
+    "output": "dist_electron",
+    "buildResources": "assets"
+  },
+  "files": [
+    "main.js",
+    "preload.js",
+    "minecraft-rpc.js",
+    "splash.html",
+    "dist/**/*",
+    "node_modules/**/*",
+    "package.json"
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "portable",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "dist_electron/.icon-ico/icon.ico",
+    "sign": null,
+    "certificateFile": null,
+    "certificatePassword": null,
+    "artifactName": "${productName}-${version}.exe",
+    "versionStrings": {
+      "CompanyName": "Amethyst",
+      "FileDescription": "Amethyst Launcher - High-performance Minecraft launcher",
+      "OriginalFilename": "Amethyst Launcher.exe",
+      "ProductName": "Amethyst Launcher",
+      "InternalName": "AmethystLauncher"
+    }
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Amethyst Launcher"
+  },
+  "portable": {
+    "artifactName": "${productName}-${version}.exe"
+  }
+}
