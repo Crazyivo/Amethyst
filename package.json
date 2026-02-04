@@ -1,6 +1,6 @@
 {
   "name": "amethyst-launcher",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Amethyst Launcher - High-performance Minecraft launcher",
   "author": "Nominor",
   "main": "main.js",

@@ -10,7 +10,7 @@ const { Client } = require('discord-rpc');
 const minecraftRPC = require('./minecraft-rpc');
 
 // App constants
-const APP_VERSION = '3.0.0';
+const APP_VERSION = '3.0.1';
 const GITHUB_REPO = 'Crazyivo/Amethyst'; // Change this to your repo
 const GITHUB_OWNER = 'Crazyivo'; // Change this to your username
 const GITHUB_REPO_NAME = 'Amethyst'; // Change this to your repo name
@@ -1014,17 +1014,30 @@ function createWindow() {
       
       // Проверка наличия JAR файлов версии
       const jarFiles = fs.readdirSync(versionsPath).filter(f => f.endsWith('.jar'));
+      console.log(`Found JAR files in ${versionsPath}:`, jarFiles);
+      
       if (jarFiles.length === 0) {
         const error = `Файлы версии Minecraft ${config.versionId} не найдены в ${versionsPath}. Пожалуйста, скачайте версию или используйте стандартный лаунчер Minecraft для загрузки файлов.`;
-        console.error(error);
+        console.error('❌', error);
+        console.error('Directory contents:', fs.readdirSync(versionsPath));
         event.reply('launch-game-response', { success: false, message: error });
         return;
       }
       
       // Проверка наличия libraries - это необходимо для запуска
       const librariesPath = path.join(minecraftPath, 'libraries');
-      if (!fs.existsSync(librariesPath) || fs.readdirSync(librariesPath).length === 0) {
-        const error = `⚠️ Библиотеки Minecraft не найдены!`;
+      if (!fs.existsSync(librariesPath)) {
+        const error = `⚠️ Директория библиотек не найдена: ${librariesPath}`;
+        console.error(error);
+        event.reply('launch-game-response', { success: false, message: error });
+        return;
+      }
+      
+      const libCount = fs.readdirSync(librariesPath).length;
+      console.log(`Found ${libCount} items in libraries directory`);
+      
+      if (libCount === 0) {
+        const error = `⚠️ Библиотеки Minecraft не найдены! Директория пуста: ${librariesPath}`;
         console.error(error);
         event.reply('launch-game-response', { success: false, message: error });
         return;
@@ -1096,14 +1109,27 @@ function createWindow() {
       }
       
       // Запуск игры в отдельном процессе
+      console.log('🎮 Preparing to spawn Minecraft process');
+      console.log('Java Binary:', javaBin);
+      console.log('JVM Args:', jvmArgs.slice(0, 5), '... (total:', jvmArgs.length, ')');
+      console.log('Classpath entries:', classPathArray.length);
+      console.log('First 3 classpath entries:', classPathArray.slice(0, 3));
+      console.log('Game Args:', gameArgs);
+      console.log('Working Directory:', minecraftPath);
+      
       const minecraft = spawn(javaBin, [...jvmArgs, '-cp', classpathArg, 'net.minecraft.client.main.Main', ...gameArgs], {
         cwd: minecraftPath,
         detached: false,
         stdio: ['ignore', 'pipe', 'pipe']
       });
       
+      console.log('✓ Process spawned with PID:', minecraft.pid);
+      
       // Store game process reference
       gameProcess = minecraft;
+      
+      // Отправить успешный ответ о запуске игры
+      event.reply('launch-game-response', { success: true, message: 'Game launched successfully' });
       
       // Initialize Minecraft Discord RPC
       console.log('🎮 Initializing Minecraft Discord RPC for version:', config.versionId);
